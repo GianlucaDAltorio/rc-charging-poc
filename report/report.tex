@@ -1,18 +1,59 @@
-\documentclass{article}
+\documentclass[twocolumn]{article}
 \usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
 
-\title{Capacitor Charging}
+\title{Capacitor Charging and the Time Constant}
 \author{Gianluca D'Altorio}
 
 \begin{document}
 \maketitle
 
+\begin{abstract}
+    This document introduces the charging behaviour of a resistor-capacitor (RC) network and derives the capacitor voltage at one time constant.
+\end{abstract}
+
+% Introduction.
 \section{Introduction}
 This document introduces the charging behavior of a resistor-capacitor (RC) network.  When a capacitor \textit{C} is charged through a series resistor \textit{R} from a constant supply \textit{V$_0$}, the capacitor voltage rises according to\\
 \begin{equation}
-    V(t)=V_0(1-e^{-t/RC})
+    V(t)=V_0(1-e^{-t/RC}),
+    \label{Equation1}
 \end{equation}
 
 \noindent where the product \textit{RC} has units of seconds and is called the time constant, $\tau = \textit{RC}$.
+
+% Second section.
+\section{Voltage at the Time Constant}
+Substituting $t=\tau$ into (\ref{Equation1}):
+
+\begin{equation}
+    \begin{aligned}
+        &V(t)=V_0(1-e^{-\tau/RC})\\
+        &=V_0(1-e^{-RC/RC})
+        && \text{since } \tau=RC\\
+        &=V_0(1-e^{-1})\\
+        &\approx V_0(1-0.368)\\
+        &\approx 0.632V_0.\\
+    \end{aligned}
+    \label{Equation2}
+\end{equation}
+
+% Figure plot.
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\columnwidth]
+        {figures/generated/rc_charging.pdf}
+    \caption{Charging curve for
+        $R=10\,\text{k}\Omega, C=22\,\text{pF}$.}
+    \label{fig:rc}
+\end{figure}
+
+\noindent The exponent cancelling to -1 in (\ref{Equation2}) is why the 0.632 fraction is universal --- \textit{R} and \textit{C} dropped out of the calculation before the final line, so this fraction holds for any \textit{RC} network.  Substituting  $V_0=5.0V$:
+
+\begin{equation}
+    V(\tau)\approx0.632\times5.0V\approx 3.16V
+\end{equation}
+matching the dashed line in Figure~\ref{fig:rc}.
 
 \end{document}
