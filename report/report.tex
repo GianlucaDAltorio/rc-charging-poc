@@ -1,59 +1,120 @@
-\documentclass[twocolumn]{article}
+\documentclass[conference]{IEEEtran}
 \usepackage[T1]{fontenc}
 \usepackage{amsmath}
 \usepackage{graphicx}
 
-\title{Capacitor Charging and the Time Constant}
-\author{Gianluca D'Altorio}
+\title{Capacitor Charging and a Power On Reset for an Active Low Microcontroller}
+\author{
+    \IEEEauthorblockN{Gianluca D'Altorio}
+    \IEEEauthorblockA{Department of Computer Engineering Technology\\
+    Vanier College}
+}
 
 \begin{document}
 \maketitle
 
+% Abstract section.
 \begin{abstract}
-    This document introduces the charging behaviour of a resistor-capacitor (RC) network and derives the capacitor voltage at one time constant.
+    This document derives the charging behavior of a resistor-capacitor (RC) network, the voltage reached after one time constant, and applies the result to size a power-on-reset (POR) circuit for a microcontroller with an active-low reset.
 \end{abstract}
 
-% Introduction.
+% Introduction section.
 \section{Introduction}
-This document introduces the charging behavior of a resistor-capacitor (RC) network.  When a capacitor \textit{C} is charged through a series resistor \textit{R} from a constant supply \textit{V$_0$}, the capacitor voltage rises according to\\
+When a capacitor \textit{C} is charged through a series resistor \textit{R} from a constant supply \textit{V$_0$}, the capacitor voltage rises according to\\
 \begin{equation}
-    V(t)=V_0(1-e^{-t/RC}),
+    V(t)=V_0\left(1-e^{-t/RC}\right),
     \label{Equation1}
 \end{equation}
 
-\noindent where the product \textit{RC} has units of seconds and is called the time constant, $\tau = \textit{RC}$.
+\noindent where $\tau=\textit{RC}$ is the time constant.
 
-% Second section.
+% Second section (Voltage at the Time Constant).
 \section{Voltage at the Time Constant}
-Substituting $t=\tau$ into (\ref{Equation1}):
+\noindent Substituting $t=\tau$ into (\ref{Equation1}):
 
 \begin{equation}
     \begin{aligned}
-        &V(t)=V_0(1-e^{-\tau/RC})\\
-        &=V_0(1-e^{-RC/RC})
+        &V(t)=V_0\left(1-e^{-\tau/RC}\right)\\
+        &=V_0\left(1-e^{-RC/RC}\right)
         && \text{since } \tau=RC\\
-        &=V_0(1-e^{-1})\\
-        &\approx V_0(1-0.368)\\
+        &=V_0\left(1-e^{-1}\right)\\
+        &\approx V_0\left(1-0.368\right)\\
         &\approx 0.632V_0.\\
     \end{aligned}
     \label{Equation2}
 \end{equation}
 
-% Figure plot.
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=\columnwidth]
-        {figures/generated/rc_charging.pdf}
-    \caption{Charging curve for
-        $R=10\,\text{k}\Omega, C=22\,\text{pF}$.}
-    \label{fig:rc}
-\end{figure}
-
-\noindent The exponent cancelling to -1 in (\ref{Equation2}) is why the 0.632 fraction is universal --- \textit{R} and \textit{C} dropped out of the calculation before the final line, so this fraction holds for any \textit{RC} network.  Substituting  $V_0=5.0V$:
+The exponent cancelling to -1 in (\ref{Equation2}) is why the 0.632 fraction is universal --- \textit{R} and \textit{C} dropped out of the calculation before the final line, so this fraction holds for any \textit{RC} network.  Substituting  $V_0=5.0V$:
 
 \begin{equation}
     V(\tau)\approx0.632\times5.0V\approx 3.16V
 \end{equation}
 matching the dashed line in Figure~\ref{fig:rc}.
+
+% SECTION 4 ------------------------------------------
+
+% Figure 1.
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\columnwidth]
+        {figures/generated/rc_charging.pdf}
+    \caption{Charging curves for four resistances,
+        $C=22\,\text{pF}$.}
+    \label{fig:rc}
+\end{figure}
+
+% Figure 2
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\columnwidth]
+        {figures/drawn/por_circuit.pdf}
+    \caption{Power-on-reset network driving an active-low reset pin.}
+    \label{fig:mcu}
+\end{figure}
+
+% Third section (Power on Reset With an Active Low Reset).
+\section{Power on Reset With an Active Low Reset}
+A power-on-reset circuit exploits (\ref{Equation1}) directly, as shown in Figure~\ref{fig:mcu}: \textit{R} from $V_{CC}$ to the reset node and \textit{C} from that node to ground hold the microcontroller's active-low reset pin low until the node crosses $V_{IH}$, releasing the device.
+
+% Subsection A of the third section (Sizing R for a Timing Constraint).
+\subsection{Sizing R for a Timing Constraint}
+The reset pin releases the instant the node voltage reaches $V_{IH}$. Setting $V(t_{release})=V_{IH}$ in (\ref{Equation1}) and solving for $t_{release}$:
+\begin{equation}
+        \begin{aligned}
+        &V_{IH}=V_0\left(1-e^{-t_{release}/RC}\right)\\
+        &\frac{V_{IH}}{V_0}=1-e^{-t_{release}/RC}\\
+        &e^{-t_{release}/RC}=1-\frac{V_{IH}}{V_0}\\
+        &-\frac{t_{release}}{RC}=\ln{\left(1-\frac{V_{IH}}{V_0}\right)}\\
+        &t_{release}=-RC\ln{\left(1-\frac{V_{IH}}{V_0}\right)}.
+    \end{aligned}
+    \label{Equation4}
+\end{equation}
+
+Rearranging (\ref{Equation4}) for \textit{R}, given a target $t_{release}$ and a chosen \textit{C}:
+
+\begin{equation}
+    \begin{aligned}
+        &R=\frac{-t_{release}}{C\ln{\left(1-\frac{V_{IH}}{V_0}\right)}}.
+    \end{aligned}
+    \label{Equation3}
+\end{equation}
+
+\textit{1) Worked example:} Take $V_{IH}=0.7V_0, V_0=5.0V,$ and a target $t_{release}=10$ms.  The $C=22\,\text{pF}$ used for the plots above was chosen only to keep the curves readable at a sub-microsecond timescale; a practical timing design instead starts from $C=100\,\text{nF}$.  Evaluating the denominator of (\ref{Equation3}):
+
+\begin{equation}
+    \begin{aligned}
+        &\ln{1-0.7}=\ln{0.3}\approx-1.204.
+    \end{aligned}
+\end{equation}
+
+\noindent Substituting into (\ref{Equation3}):
+
+\begin{equation}
+    \begin{aligned}
+        &R=\frac{-\left(10\times10^{-3}\right)}{\left(100\times10^{-9}\right)\times(-1.204)}\approx 83\,k\Omega.
+    \end{aligned}
+\end{equation}
+
+An $83\,k\Omega$ resistor with a 100\,nF capacitor gives a reset hold-off of approximately 10\,ms.  If instead \textit{C} is kept at the plotting value of 22\,pF, the same 10\,ms target would require $R \approx 377\,\text{M}\Omega$, which is not a realistic resistor value. This is exactly why a practical design fixes a realistic capacitor value first, typically in the nanofarad range, and only then solves for the resistor.
 
 \end{document}
