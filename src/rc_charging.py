@@ -4,33 +4,36 @@ import matplotlib.pyplot as plt
 V0 = 5.0
 VIH = 0.7 * V0
 
-# 10 kOhm metal-film resistor: +-5%
-# 1 uF ceramic capacitor: +-10%
+# 10 kOhm metal-film resistor: +-5%.
+# 1 uF ceramic capacitor: +-10%.
 R_nominal = 10e3
 C_nominal = 1e-6
 R_tolerance = 0.05
 C_tolerance = 0.10
 
-# Fastest case: both R and C at minimum
+# Fastest case: both R and C at minimum.
 R_fast = R_nominal * (1 - R_tolerance)
 C_fast = C_nominal * (1 - C_tolerance)
 
-# Slowest case: both R and C at maximum
+# Slowest case: both R and C at maximum.
 R_slow = R_nominal * (1 + R_tolerance)
 C_slow = C_nominal * (1 + C_tolerance)
 
+# Equation to calculate t_release.
 def t_release(R, C):
     return -R * C * np.log(1 - VIH / V0)
 
+# Calculate t_release time for each case (nominal, fastest, slowest).
 t_nominal = t_release(R_nominal, C_nominal)
 t_fast = t_release(R_fast, C_fast)
 t_slow = t_release(R_slow, C_slow)
 
+# Print results to console for verification.
 print(f"Nominal t_release = {t_nominal*1e3:.2f} ms")
 print(f"Fastest (R_min, C_min) t_release = {t_fast*1e3:.2f} ms")
 print(f"Slowest (R_max, C_max) t_release = {t_slow*1e3:.2f} ms")
 
-# Plot all three charging curves
+# Plot all three charging curves.
 t = np.linspace(0, 5 * t_slow / (-np.log(1 - VIH / V0)), 500)
 tau_max = R_slow * C_slow
 t = np.linspace(0, 5 * tau_max, 500)
@@ -54,4 +57,5 @@ ax.set_ylabel("Voltage (V)")
 ax.set_title("POR charging curve with component tolerance")
 ax.legend()
 
+# Save figure.
 fig.savefig("figures/generated/rc_tolerance.pdf")
