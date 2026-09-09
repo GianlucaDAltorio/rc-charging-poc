@@ -115,9 +115,9 @@ Rearranging (\ref{Equation4}) for \textit{R}, given a target $t_{release}$ and a
 
 An $83\,k\Omega$ resistor with a 100\,nF capacitor gives a reset hold-off of approximately $10\,ms$.  If instead \textit{C} is kept at the plotting value of 22\,pF, the same 10\,ms target would require $R \approx 377\,\text{M}\Omega$, which is not a realistic resistor value. This is exactly why a practical design fixes a realistic capacitor value first, typically in the nanofarad range, and only then solves for the resistor.
 
-% Fourth section (Applications and Limitations)
+% Fourth section (Applications and Limitations).
 \section{Applications and Limitations}
-% Part A.
+% Part A (applications).
 \subsection{Applications}
 A battery-powered humidity sensor node, designed for applications such as agricultural soil or greenhouse monitoring, is a classic application for an RC-only-power-on-reset circuit.  These nodes wake briefly to take a reading, transmit or log the result, and return to sleep, so the consequences of an imprecise reset are minimal.  For instance, brown-out detection, which is found in more enhanced devices, is unnecessary because a momentary voltage dip mid-operation would, at worst, corrupt a single reading.  This can be discarded or re-measured on the next cycle.  In addition, precise reset timing, a feature offered by dedicated supervisor ICs, is not required, since nothing depends on the device waking at an exact moment in time.  A variation of milliseconds has no effect on the system.  Given the minimal requirements, a simple RC network is appropriate and cost-effective over a dedicated supervisor IC.  For this application, the values of $R = 10\,\text{k}\Omega$ and $C=1\,\text{$\mu$F}$ were chosen, giving, from (\ref{Equation4}):
 
@@ -131,7 +131,7 @@ A battery-powered humidity sensor node, designed for applications such as agricu
     \end{aligned}
 \end{equation}
 
-% Part B
+% Part B (limitations).
  \subsection{Limitations}
  With benefits come downsides, and there are several when considering this kind of circuitry.  Firstly, since real resistors and capacitors are imperfect and tend to deviate from their nominal values, the actual $t_{release}$ will differ from the calculated value compared to a real-life application, which is demonstrated later in this report.  In addition, the equation in (\ref{Equation1}) assumes that the supply voltage $V_0$ appears as an ideal step at $t=0$.  In reality, if the battery or regulator supplying the node increases gradually instead of instantaneously, the RC node voltage rises more slowly than the model predicts.  As a result, the reset pin may hover around $V_{IH}$ for longer than expected before releasing.  Another consequence of the RC-POR circuit is reset-pin leakage current.  The microcontroller’s reset pin draws a small leakage current rather than presenting a perfectly open circuit.  This additional current path discharges the capacitor slowly, pulling the effective $\tau$ away from the calculated RC product, making the true release time unpredictable compared to the ideal model.
 
@@ -144,7 +144,7 @@ A battery-powered humidity sensor node, designed for applications such as agricu
     \label{fig:rct}
 \end{figure}
 
-% Part C.
+% Part C (component tolerance).
 \subsection{Component Tolerance}
 As previously mentioned, resistors and capacitors are not exact.  A $1\,\text{$\mu$F}$ ceramic capacitor is typically rated to $\pm 10\%$ tolerance, and a $10\,\text{k}\Omega$ resistor to $\pm 5\%$.  Since $t_{release}=-RC\ln{\left(1-\frac{V_{IH}}{V_0}\right)} = kRC$, the release time varies with both components.  The fastest case occurs at $R_{min}$ and $C_{min}$, with the slowest happening at $R_{max}$ and $C_{max}$.  Applying the formula: $\frac{\Delta t}{t}\approx \frac{\Delta R}{R}+\frac{\Delta C}{C}$, we can determine that: 
 
